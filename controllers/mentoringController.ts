@@ -4,7 +4,7 @@ import User from "../models/userModel";
 import Notification from "../models/notificationModel";
 import MentoringInfo from "../models/mentoringSessionModel";
 
-import { getUserId } from "../utils/authFunctions";
+import { getRefreshUserId, getUserId } from "../utils/authFunctions";
 import MentoringSession from "../models/mentoringSessionModel";
 
 export const getMentoringInfoController = async (
@@ -39,7 +39,7 @@ export const mentoringRequestController = async (
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    menteeId = getUserId(req.cookies.refreshToken);
+    menteeId = getRefreshUserId(req.cookies.refreshToken);
   }
 
   const mentor = await User.findById(mentorId);
