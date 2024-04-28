@@ -1,23 +1,40 @@
-import { Request, Response } from 'express';
-import User from '../models/userModel';
-import Notification from '../models/notificationModel';
-import MentoringInfo from '../models/mentoringSessionModel';
-import { hasDuplicates } from '../utils/userUtility';
-import mongoose from 'mongoose';
-import { getUserInfo } from '../utils/functions';
+import { Request, Response } from "express";
+import User from "../models/userModel";
+import Notification from "../models/notificationModel";
+import MentoringInfo from "../models/mentoringSessionModel";
+import { hasDuplicates } from "../utils/userUtility";
+import mongoose from "mongoose";
+import { getUserInfo } from "../utils/functions";
 import {
   addAccessTokenCookie,
   addRefreshTokenCookie,
   generateAccessToken,
   generateRefreshToken,
+  getRefreshUserId,
   getUserId,
-} from '../utils/authFunctions';
-import RefreshToken from '../models/refreshTokenModel';
+} from "../utils/authFunctions";
+import RefreshToken from "../models/refreshTokenModel";
 
 export const getUserInfoController = async (req: Request, res: Response) => {
   const accessToken = req.cookies.accessToken;
-  console.log(accessToken);
-  const userId = getUserId(accessToken);
+  let userId: string;
+
+  console.log("userinfo");
+
+  if (accessToken) {
+    console.log("userinfo-access");
+    userId = getUserId(accessToken);
+  } else {
+    console.log("userinfo-refresh");
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    userId = getRefreshUserId(refreshToken);
+  }
+
   const userInfo = await getUserInfo(userId);
 
   return res.json(userInfo);
@@ -25,20 +42,32 @@ export const getUserInfoController = async (req: Request, res: Response) => {
 
 export const getMentorsController = async (req: Request, res: Response) => {
   const accessToken = req.cookies.accessToken;
-  const userId = getUserId(accessToken);
-  const menteeInfo = req.body;
 
-  console.log('info', menteeInfo);
+  let userId: string;
+
+  if (accessToken) {
+    userId = getUserId(accessToken);
+  } else {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    userId = getRefreshUserId(refreshToken);
+  }
+
+  const menteeInfo = req.body;
 
   try {
     const user = await User.findById(userId);
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
     const mentors = await User.find({
-      role: { $in: ['Mentor'] },
+      role: { $in: ["Mentor"] },
       _id: { $ne: userId },
     });
 
@@ -48,7 +77,7 @@ export const getMentorsController = async (req: Request, res: Response) => {
       let mentorCanHelpWith = mentor.mentorCanHelpWith;
       const menteeNeedHelpWith = menteeInfo.needHelpWith;
 
-      console.log('mentorCanHelpWith: ', mentorCanHelpWith);
+      console.log("mentorCanHelpWith: ", mentorCanHelpWith);
 
       const mentorAvailableDays = mentor.availableDays;
       const menteeAvailableDays = user.availableDays;
@@ -98,10 +127,10 @@ export const userSignUpController = async (req: Request, res: Response) => {
 
     if (refreshToken) await saveNewRefreshToken(newUser.id, refreshToken);
 
-    res.status(200).json({ status: 'signup successful' });
+    res.status(200).json({ status: "signup successful" });
   } catch (error) {
     console.log(error);
-    res.status(500).send('Internal Server Error');
+    res.status(500).send("Internal Server Error");
   }
 };
 
@@ -112,13 +141,13 @@ export const userLogoutController = async (req: Request, res: Response) => {
     const removeToken = await RefreshToken.findOneAndDelete({
       token: refreshToken,
     });
-    res.clearCookie('accessToken');
-    res.clearCookie('refreshToken');
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
 
-    res.status(200).json({ status: 'logout successful' });
+    res.status(200).json({ status: "logout successful" });
   } catch (error) {
     console.log(error);
-    res.status(500).send('internal server error');
+    res.status(500).send("internal server error");
   }
 };
 
@@ -127,7 +156,20 @@ export const userProfileEditController = async (
   res: Response
 ) => {
   const accessToken = req.cookies.accessToken;
-  const userId = getUserId(accessToken);
+  let userId: string;
+
+  if (accessToken) {
+    userId = getUserId(accessToken);
+  } else {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    userId = getRefreshUserId(refreshToken);
+  }
+
   const updatedData = req.body;
 
   try {
@@ -136,12 +178,12 @@ export const userProfileEditController = async (
     });
 
     if (!updatedData) {
-      return res.status(404).send('User not found');
+      return res.status(404).send("User not found");
     }
 
-    res.status(200).send('User data updated');
+    res.status(200).send("User data updated");
   } catch (error) {
-    console.error('Error updating user: ', error);
-    res.status(500).send('Error occurred while updating the user');
+    console.error("Error updating user: ", error);
+    res.status(500).send("Error occurred while updating the user");
   }
 };

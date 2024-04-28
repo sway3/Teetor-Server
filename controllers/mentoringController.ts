@@ -1,11 +1,11 @@
-import { Request, Response } from 'express';
+import { Request, Response } from "express";
 
-import User from '../models/userModel';
-import Notification from '../models/notificationModel';
-import MentoringInfo from '../models/mentoringSessionModel';
+import User from "../models/userModel";
+import Notification from "../models/notificationModel";
+import MentoringInfo from "../models/mentoringSessionModel";
 
-import { getUserId } from '../utils/authFunctions';
-import MentoringSession from '../models/mentoringSessionModel';
+import { getUserId } from "../utils/authFunctions";
+import MentoringSession from "../models/mentoringSessionModel";
 
 export const getMentoringInfoController = async (
   req: Request,
@@ -29,7 +29,19 @@ export const mentoringRequestController = async (
 ) => {
   const { mentorId, menteeInfo } = req.body;
   const accessToken = req.cookies.accessToken;
-  const menteeId = getUserId(accessToken);
+
+  let menteeId: string;
+
+  if (accessToken) {
+    menteeId = getUserId(accessToken);
+  } else {
+    if (!req.cookies.refreshToken) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    menteeId = getUserId(req.cookies.refreshToken);
+  }
+
   const mentor = await User.findById(mentorId);
 
   console.log(menteeInfo);
@@ -38,9 +50,9 @@ export const mentoringRequestController = async (
     const notification = new Notification({
       recipientId: mentorId,
       senderId: menteeId,
-      type: 'mentoring-request',
-      status: 'pending',
-      message: 'You have a new mentoring request',
+      type: "mentoring-request",
+      status: "pending",
+      message: "You have a new mentoring request",
       content: {
         mentorCanHelpWith: mentor?.mentorCanHelpWith,
         mentorDescription: mentor?.mentorDescription,
@@ -70,10 +82,10 @@ export const addNewEventController = async (req: Request, res: Response) => {
       { new: true }
     );
 
-    res.status(201).send('new event successfully added');
+    res.status(201).send("new event successfully added");
   } catch (error) {
-    console.error('Error occurred in addNewEventController');
-    res.status(500).json('error in addNewEventController');
+    console.error("Error occurred in addNewEventController");
+    res.status(500).json("error in addNewEventController");
   }
 };
 
@@ -85,7 +97,7 @@ export const loadEventsController = async (req: Request, res: Response) => {
     const events = session?.calendar;
     res.status(200).json(events);
   } catch (error) {
-    res.status(500).json('Error occurred in loadEventsController');
+    res.status(500).json("Error occurred in loadEventsController");
     console.error(error);
   }
 };
@@ -99,10 +111,10 @@ export const removeEventController = async (req: Request, res: Response) => {
       $pull: { calendar: { _id: eventId } },
     });
 
-    res.status(200).send('remove event successful');
+    res.status(200).send("remove event successful");
   } catch (error) {
-    console.error('removeEventController error: ', error);
-    res.status(500).json('error occurred in removeEventController');
+    console.error("removeEventController error: ", error);
+    res.status(500).json("error occurred in removeEventController");
   }
 };
 
@@ -119,17 +131,17 @@ export const editEventController = async (req: Request, res: Response) => {
 
   try {
     await MentoringSession.updateOne(
-      { _id: sessionId, 'calendar._id': eventId },
+      { _id: sessionId, "calendar._id": eventId },
       {
         $set: {
-          'calendar.$': eventData,
+          "calendar.$": eventData,
         },
       }
     );
 
-    res.status(200).send('edit event successful');
+    res.status(200).send("edit event successful");
   } catch (error) {
-    console.error('error in edit event controller: ', error);
-    res.status(500).send('error occurred in edit event controller');
+    console.error("error in edit event controller: ", error);
+    res.status(500).send("error occurred in edit event controller");
   }
 };

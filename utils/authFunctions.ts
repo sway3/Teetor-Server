@@ -1,8 +1,8 @@
-import jwt from 'jsonwebtoken';
-import { Response } from 'express';
-import crypto from 'crypto';
+import jwt from "jsonwebtoken";
+import { Response } from "express";
+import crypto from "crypto";
 
-require('dotenv').config();
+require("dotenv").config();
 
 export const generateAccessToken = (user: string) => {
   const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
@@ -10,11 +10,11 @@ export const generateAccessToken = (user: string) => {
   console.log(ACCESS_TOKEN_SECRET);
 
   if (!ACCESS_TOKEN_SECRET) {
-    throw new Error('ACCESS_TOKEN_SECRET is undefined');
+    throw new Error("ACCESS_TOKEN_SECRET is undefined");
   }
 
   const accessToken = jwt.sign({ userId: user }, ACCESS_TOKEN_SECRET, {
-    expiresIn: '30m',
+    expiresIn: "30m",
   });
 
   return encrypt(accessToken);
@@ -24,11 +24,11 @@ export const generateRefreshToken = (user: any) => {
   const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
 
   if (!REFRESH_TOKEN_SECRET) {
-    throw new Error('REFRESH_TOKEN_SECRET is undefined');
+    throw new Error("REFRESH_TOKEN_SECRET is undefined");
   }
 
   const refreshToken = jwt.sign({ userId: user }, REFRESH_TOKEN_SECRET, {
-    expiresIn: '7d',
+    expiresIn: "7d",
   });
 
   return encrypt(refreshToken);
@@ -41,15 +41,15 @@ export const encrypt = (text: string) => {
   if (ENCRYPTION_KEY) {
     const iv = crypto.randomBytes(IV_LENGTH);
     const cipher = crypto.createCipheriv(
-      'aes-256-cbc',
-      Buffer.from(ENCRYPTION_KEY, 'hex'),
+      "aes-256-cbc",
+      Buffer.from(ENCRYPTION_KEY, "hex"),
       iv
     );
 
-    let encrypted = cipher.update(text, 'utf8', 'hex');
-    encrypted += cipher.final('hex');
+    let encrypted = cipher.update(text, "utf8", "hex");
+    encrypted += cipher.final("hex");
 
-    return iv.toString('hex') + ':' + encrypted;
+    return iv.toString("hex") + ":" + encrypted;
   }
 };
 
@@ -57,12 +57,12 @@ export const decrypt = (text: string) => {
   const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
 
   if (ENCRYPTION_KEY) {
-    const textParts = text.split(':');
-    const iv = Buffer.from(textParts.shift()!, 'hex');
-    const encryptedText = Buffer.from(textParts.join(':'), 'hex');
+    const textParts = text.split(":");
+    const iv = Buffer.from(textParts.shift()!, "hex");
+    const encryptedText = Buffer.from(textParts.join(":"), "hex");
     const decipher = crypto.createDecipheriv(
-      'aes-256-cbc',
-      Buffer.from(ENCRYPTION_KEY, 'hex'),
+      "aes-256-cbc",
+      Buffer.from(ENCRYPTION_KEY, "hex"),
       iv
     );
 
@@ -71,9 +71,9 @@ export const decrypt = (text: string) => {
       decipher.final(),
     ]);
 
-    return decrypted.toString('utf8');
+    return decrypted.toString("utf8");
   } else {
-    throw new Error('Encryption key is missing');
+    throw new Error("Encryption key is missing");
   }
 };
 
@@ -81,33 +81,58 @@ export const getUserId = (token: string): string => {
   const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
 
   if (!ACCESS_TOKEN_SECRET) {
-    throw new Error('error');
+    throw new Error("error");
   }
 
-  const decryptedToken = decrypt(token);
-  const decodedToken = jwt.verify(decryptedToken, ACCESS_TOKEN_SECRET) as {
-    userId: string;
-  };
+  if (token) {
+    const decryptedToken = decrypt(token);
+    const decodedToken = jwt.verify(decryptedToken, ACCESS_TOKEN_SECRET) as {
+      userId: string;
+    };
 
-  const userId = decodedToken.userId;
+    const userId = decodedToken.userId;
 
-  return userId;
+    return userId;
+  } else {
+    throw new Error("error");
+  }
+};
+
+export const getRefreshUserId = (token: string): string => {
+  const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
+
+  if (!REFRESH_TOKEN_SECRET) {
+    throw new Error("error");
+  }
+
+  if (token) {
+    const decryptedToken = decrypt(token);
+    const decodedToken = jwt.verify(decryptedToken, REFRESH_TOKEN_SECRET) as {
+      userId: string;
+    };
+
+    const userId = decodedToken.userId;
+
+    return userId;
+  } else {
+    throw new Error("error");
+  }
 };
 
 export const addAccessTokenCookie = (res: Response, token: string) => {
-  res.cookie('accessToken', token, {
+  res.cookie("accessToken", token, {
     httpOnly: true,
     secure: true,
-    sameSite: 'none',
-    maxAge: 30 * 60 * 1000,
+    sameSite: "none",
+    maxAge: 0.5 * 60 * 1000,
   });
 };
 
 export const addRefreshTokenCookie = (res: Response, token: string) => {
-  res.cookie('refreshToken', token, {
+  res.cookie("refreshToken", token, {
     httpOnly: true,
     secure: true,
-    sameSite: 'none',
+    sameSite: "none",
     maxAge: 30 * 24 * 60 * 60 * 1000,
   });
 };

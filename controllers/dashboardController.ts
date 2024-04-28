@@ -1,27 +1,26 @@
-import { Request, Response } from 'express';
+import { Request, Response } from "express";
 import {
   getUserInfo,
   getNotification,
   getMentoringSessions,
-} from '../utils/functions';
-import { decrypt } from '../utils/authFunctions';
-import jwt from 'jsonwebtoken';
+} from "../utils/functions";
+import { getRefreshUserId, getUserId } from "../utils/authFunctions";
 
 export const getDashInfoController = async (req: Request, res: Response) => {
-  const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
-
-  if (!ACCESS_TOKEN_SECRET) {
-    throw new Error('error');
-  }
-
   const accessToken = req.cookies.accessToken;
-  const decryptedToken = decrypt(accessToken);
+  let userId: string;
 
-  const decodedToken = jwt.verify(decryptedToken, ACCESS_TOKEN_SECRET) as {
-    userId: string;
-  };
+  if (accessToken) {
+    userId = getUserId(accessToken);
+  } else {
+    const refreshToken = req.cookies.refreshToken;
 
-  const userId = decodedToken.userId;
+    if (!refreshToken) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    userId = getRefreshUserId(refreshToken);
+  }
 
   try {
     const [userInfo, notification, mentoringSessions] = await Promise.all([
@@ -36,7 +35,7 @@ export const getDashInfoController = async (req: Request, res: Response) => {
     res
       .status(500)
       .send(
-        'Error occurred when fetching dashboard information from the database'
+        "Error occurred when fetching dashboard information from the database"
       );
   }
 };

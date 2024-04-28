@@ -1,25 +1,8 @@
-import OpenAI from 'openai';
-import { Request, Response } from 'express';
-import MentoringSession from '../models/mentoringSessionModel';
+import OpenAI from "openai";
+import { Request, Response } from "express";
+import MentoringSession from "../models/mentoringSessionModel";
 
-require('dotenv').config();
-
-const getMentoringSessionInfo = async (mentoringSessionId: string) => {
-  const mentoringSession = await MentoringSession.findById(mentoringSessionId);
-
-  const mentorCanHelpWith = mentoringSession?.mentorInfo.canHelpWith.join(', ');
-  const mentorDescription = mentoringSession?.mentorInfo.description;
-  const menteeNeedHelpWith =
-    mentoringSession?.menteeInfo.needHelpWith.join(', ');
-  const menteeDescription = mentoringSession?.menteeInfo.description;
-
-  return {
-    mentorCanHelpWith,
-    mentorDescription,
-    menteeNeedHelpWith,
-    menteeDescription,
-  };
-};
+require("dotenv").config();
 
 export const chatSuggestController = async (
   mentorInfo: any,
@@ -38,11 +21,11 @@ export const chatSuggestController = async (
     const suggestion = await openai.chat.completions.create({
       messages: [
         {
-          role: 'system',
+          role: "system",
           content: `You are an assistant to help mentors and mentees to start off a conversation in my web application.`,
         },
         {
-          role: 'user',
+          role: "user",
           content: `A mentor and mentee just started a session and they are about to message each other. \
             In this session, the mentee needs help with ${menteeNeedHelpWith}. \
             The specific description about what the mentee expect from the mentor is \
@@ -56,7 +39,7 @@ export const chatSuggestController = async (
             Do not include any other text in your response, apart from the JSON.`,
         },
       ],
-      model: 'gpt-3.5-turbo',
+      model: "gpt-3.5-turbo",
     });
 
     const result: any = suggestion.choices[0].message.content;

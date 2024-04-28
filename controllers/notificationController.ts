@@ -1,18 +1,31 @@
-import { Request, Response } from 'express';
+import { Request, Response } from "express";
 
-import Notification from '../models/notificationModel';
-import MentoringSession from '../models/mentoringSessionModel';
-import User from '../models/userModel';
-import { getUserId } from '../utils/authFunctions';
-import Chat from '../models/chatModel';
-import Message from '../models/messageModel';
+import Notification from "../models/notificationModel";
+import MentoringSession from "../models/mentoringSessionModel";
+import User from "../models/userModel";
+import { getRefreshUserId, getUserId } from "../utils/authFunctions";
+import Chat from "../models/chatModel";
+import Message from "../models/messageModel";
 
 export const getNotificationsController = async (
   req: Request,
   res: Response
 ) => {
   const accessToken = req.cookies.accessToken;
-  const userId = getUserId(accessToken);
+
+  let userId: string;
+
+  if (accessToken) {
+    userId = getUserId(accessToken);
+  } else {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    userId = getRefreshUserId(refreshToken);
+  }
 
   try {
     const notifications = await Notification.find({ recipientId: userId });
@@ -32,7 +45,7 @@ export const getMentoringRequestController = async (
     const notification = await Notification.findById(notificationRequestId);
 
     if (!notification) {
-      return res.status(404).json({ message: 'Notification not found' });
+      return res.status(404).json({ message: "Notification not found" });
     }
 
     const menteeInfo = await User.findById(notification.senderId);
@@ -55,13 +68,13 @@ export const controlMentoringRequestController = async (
     console.log(notification);
 
     if (!notification) {
-      return res.status(404).json({ message: 'Notification not found' });
+      return res.status(404).json({ message: "Notification not found" });
     }
 
     const mentorId = notification.recipientId;
     const mentor = await User.findById(mentorId);
 
-    if (status === 'accepted') {
+    if (status === "accepted") {
       console.log(notification.content);
 
       const mentoringSession = new MentoringSession({
@@ -70,7 +83,7 @@ export const controlMentoringRequestController = async (
           menteeId: notification.senderId,
         },
         title: title,
-        status: 'inProgress',
+        status: "inProgress",
         startDate: new Date().toISOString(),
         endDate: null,
         mentorInfo: {
@@ -86,7 +99,7 @@ export const controlMentoringRequestController = async (
 
       const newChat = new Chat({
         participants: [notification.recipientId, notification.senderId],
-        latestContent: 'Welcome!',
+        latestContent: "Welcome!",
         timestamp: new Date().toISOString(),
       });
 
@@ -95,8 +108,8 @@ export const controlMentoringRequestController = async (
       const resultNotification = new Notification({
         recipientId: notification.senderId,
         senderId: notification.recipientId,
-        type: 'mentoring-request-result',
-        status: 'accepted',
+        type: "mentoring-request-result",
+        status: "accepted",
         message: `Your mentoring request to ${mentor?.firstName} has been accepted. Start off your session by chatting to your mentor!`,
         timestamp: new Date().toISOString(),
       });
@@ -106,8 +119,8 @@ export const controlMentoringRequestController = async (
       const resultNotification = new Notification({
         recipientId: notification.senderId,
         senderId: notification.recipientId,
-        type: 'mentoring-request-result',
-        status: 'rejected',
+        type: "mentoring-request-result",
+        status: "rejected",
         message: `Your mentoring request to ${mentor?.firstName} has been rejected. Please find another mentor that is available.`,
         timestamp: new Date().toISOString(),
       });
