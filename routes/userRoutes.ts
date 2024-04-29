@@ -49,7 +49,7 @@ router.post("/auth", authController);
 router.post("/google-oauth", googleOAuthController);
 router.post("/refresh-token", refreshTokenController);
 
-//chatt
+//chat
 router.get("/chats", loadChatsController);
 router.get("/messages/:id", loadMessageController);
 router.post("/messages", sendMessageController);
