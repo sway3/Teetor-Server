@@ -1,5 +1,5 @@
 import { Server } from "socket.io";
-import http from "http";
+import http, { METHODS } from "http";
 import express from "express";
 import userRoutes from "../routes/userRoutes";
 import { getUserId } from "../utils/authFunctions";
@@ -15,8 +15,10 @@ app.use(
   cors({
     origin: "*",
     credentials: true,
+    METHODS: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   })
 );
+
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
