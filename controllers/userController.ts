@@ -142,8 +142,19 @@ export const userLogoutController = async (req: Request, res: Response) => {
       token: refreshToken,
     });
 
-    res.clearCookie("accessToken", { path: "/" });
-    res.clearCookie("refreshToken", { path: "/" });
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      path: "/",
+    });
+
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      path: "/",
+    });
 
     res.status(200).json({ status: "logout successful" });
   } catch (error) {
