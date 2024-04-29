@@ -10,7 +10,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "https://teetor-client.vercel.app/",
+    origin: "https://teetor-client.vercel.app",
     credentials: true,
   })
 );
