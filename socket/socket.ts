@@ -8,8 +8,6 @@ import cookieParser from "cookie-parser";
 const cors = require("cors");
 
 const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
 
 app.use(express.json());
 app.use(cookieParser());
@@ -21,6 +19,9 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(userRoutes);
+
+const server = http.createServer(app);
+const io = new Server(server);
 
 const cookie = require("cookie");
 
