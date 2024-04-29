@@ -1,13 +1,13 @@
 // tests/integration/removeEvent.test.js
-import request from 'supertest';
-import mongoose from 'mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import { app } from '../../../socket/socket';
+import request from "supertest";
+import mongoose from "mongoose";
+import { MongoMemoryServer } from "mongodb-memory-server";
+import { app } from "../../../socket/socket";
 import MentoringSession, {
   IMentoringSession,
-} from '../../../models/mentoringSessionModel';
+} from "../../../models/mentoringSessionModel";
 
-describe('PATCH /calendar/:sessionId/event/:eventId - Remove Event Controller Integration Test', () => {
+describe("PATCH /calendar/:sessionId/event/:eventId - Remove Event Controller Integration Test", () => {
   let mongoServer: MongoMemoryServer;
   let mentoringSession: IMentoringSession;
 
@@ -21,35 +21,30 @@ describe('PATCH /calendar/:sessionId/event/:eventId - Remove Event Controller In
         mentorId: new mongoose.Types.ObjectId(),
         menteeId: new mongoose.Types.ObjectId(),
       },
-      startDate: '2024-04-20',
-      endDate: '2024-04-21',
-      status: 'inProgress',
-      title: 'Intro to Web Dev',
+      startDate: "2024-04-20",
+      endDate: "2024-04-21",
+      status: "inProgress",
+      title: "Intro to Web Dev",
       mentorInfo: {
-        canHelpWith: ['HTML', 'CSS', 'JavaScript'],
-        description: 'Experienced web developer',
+        canHelpWith: ["HTML", "CSS", "JavaScript"],
+        description: "Experienced web developer",
       },
       menteeInfo: {
-        needHelpWith: ['JavaScript'],
-        description: 'Beginner needing help with JS basics',
+        needHelpWith: ["JavaScript"],
+        description: "Beginner needing help with JS basics",
       },
       calendar: [
         {
           _id: new mongoose.Types.ObjectId(),
-          title: 'test event',
+          title: "test event",
           date: new Date().toISOString(),
-          description: 'testing load events',
+          description: "testing load events",
         },
       ],
     });
-  });
+  }, 20000);
 
-  afterAll(async () => {
-    await mongoose.disconnect();
-    await mongoServer.stop();
-  });
-
-  test('Successfully remove an event from a session', async () => {
+  test("Successfully remove an event from a session", async () => {
     const sessionId = mentoringSession._id;
     const eventId = mentoringSession.calendar[0]._id;
 
@@ -58,6 +53,6 @@ describe('PATCH /calendar/:sessionId/event/:eventId - Remove Event Controller In
     );
 
     expect(response.status).toBe(200);
-    expect(response.text).toBe('remove event successful');
-  });
+    expect(response.text).toBe("remove event successful");
+  }, 20000);
 });

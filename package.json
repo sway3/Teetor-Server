@@ -1,7 +1,6 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "build": "npx tsc",
@@ -45,5 +44,6 @@
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.3.3"
-  }
+  },
+  "description": ""
 }
