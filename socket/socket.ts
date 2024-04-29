@@ -9,12 +9,7 @@ const cors = require("cors");
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: "https://teetor-client.vercel.app",
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  },
-});
+const io = new Server(server);
 
 app.use(express.json());
 app.use(cookieParser());
@@ -22,11 +17,9 @@ const corsOptions = {
   origin: "https://teetor-client.vercel.app",
   credentials: true,
   methods: ["GET", "POST", "HEAD", "PUT", "PATCH", "DELETE"],
-  allowedHeaders: ["Content-Type"],
-  exposedHeaders: ["Content-Type"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 };
 app.use(cors(corsOptions));
-app.options("*", cors());
 app.use(userRoutes);
 
 const cookie = require("cookie");
