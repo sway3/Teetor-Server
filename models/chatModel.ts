@@ -1,5 +1,6 @@
-import mongoose, { Document } from 'mongoose';
+import mongoose, { Document } from "mongoose";
 
+//check
 export interface IChat extends Document {
   participants: string[];
   latestContent: string;
@@ -7,11 +8,11 @@ export interface IChat extends Document {
 }
 
 const chatSchema = new mongoose.Schema({
-  participants: { type: [String], ref: 'User', required: true },
+  participants: { type: [String], ref: "User", required: true },
   latestContent: { type: String, required: true },
   timestamp: { type: String, required: true },
 });
 
-const Chat = mongoose.model<IChat>('Chats', chatSchema);
+const Chat = mongoose.model<IChat>("Chats", chatSchema);
 
 export default Chat;
