@@ -141,8 +141,9 @@ export const userLogoutController = async (req: Request, res: Response) => {
     const removeToken = await RefreshToken.findOneAndDelete({
       token: refreshToken,
     });
-    res.clearCookie("accessToken");
-    res.clearCookie("refreshToken");
+
+    res.clearCookie("accessToken", { path: "/" });
+    res.clearCookie("refreshToken", { path: "/" });
 
     res.status(200).json({ status: "logout successful" });
   } catch (error) {
