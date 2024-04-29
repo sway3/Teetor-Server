@@ -1,5 +1,6 @@
 import { Server } from "socket.io";
 import { readFileSync } from "fs";
+import fs from "fs";
 import https from "https";
 import express from "express";
 import userRoutes from "../routes/userRoutes";
@@ -9,10 +10,9 @@ import cors from "cors";
 
 const app = express();
 
-const SSLFiles = () => {
-  const key = readFileSync("./key.pem");
-  const cert = readFileSync("./cert.pem");
-  return { key: key, cert: cert };
+const options = {
+  key: fs.readFileSync("test/fixtures/keys/agent2-key.pem"),
+  cert: fs.readFileSync("test/fixtures/keys/agent2-cert.cert"),
 };
 
 app.use(
@@ -24,8 +24,6 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 app.use(userRoutes);
-
-const options = SSLFiles();
 
 const server = https.createServer(options, app);
 const io = new Server(server, {
