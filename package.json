@@ -4,8 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node dist/index.js",
-    "build": "tsc",
-    "postinstall": "npm run build"
+    "postinstall": "tsc"
   },
   "keywords": [],
   "author": "",
