@@ -8,16 +8,6 @@ import cookieParser from "cookie-parser";
 const cors = require("cors");
 
 const app = express();
-
-app.use(express.json());
-app.use(cookieParser());
-app.options("*", cors());
-const corsOptions = {
-  origin: "https://teetor-client.vercel.app",
-  optionsSuccessStatus: 200,
-};
-app.use(cors(corsOptions));
-
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
@@ -26,6 +16,14 @@ const io = new Server(server, {
   },
 });
 
+app.use(express.json());
+app.use(cookieParser());
+const corsOptions = {
+  origin: "https://teetor-client.vercel.app",
+  optionsSuccessStatus: 200,
+};
+app.use(cors(corsOptions));
+app.options("*", cors());
 app.use(userRoutes);
 
 const cookie = require("cookie");
