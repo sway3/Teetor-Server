@@ -1,6 +1,5 @@
 import { Server } from "socket.io";
-import fs from "node:fs";
-import https from "node:https";
+import http from "http";
 import express from "express";
 import userRoutes from "../routes/userRoutes";
 import { getUserId } from "../utils/authFunctions";
@@ -9,23 +8,17 @@ import cors from "cors";
 
 const app = express();
 
-const options = {
-  key: fs.readFileSync("test/fixtures/keys/agent2-key.pem"),
-  cert: fs.readFileSync("test/fixtures/keys/agent2-cert.cert"),
-};
-
 app.use(
   cors({
     origin: "https://teetor-client.vercel.app",
     credentials: true,
   })
 );
-
 app.use(express.json());
 app.use(cookieParser());
 app.use(userRoutes);
 
-const server = https.createServer(options, app);
+const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: "https://teetor-client.vercel.app",
