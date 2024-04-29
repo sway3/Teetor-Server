@@ -1,7 +1,6 @@
 import { Server } from "socket.io";
-import { readFileSync } from "fs";
-import fs from "fs";
-import https from "https";
+import fs from "node:fs";
+import https from "node:https";
 import express from "express";
 import userRoutes from "../routes/userRoutes";
 import { getUserId } from "../utils/authFunctions";
@@ -21,6 +20,7 @@ app.use(
     credentials: true,
   })
 );
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(userRoutes);
