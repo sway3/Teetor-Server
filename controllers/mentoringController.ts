@@ -73,6 +73,8 @@ export const addNewEventController = async (req: Request, res: Response) => {
   const { sessionId } = req.body;
   const newEvent = req.body;
 
+  console.log(newEvent);
+
   try {
     await MentoringSession.findByIdAndUpdate(
       sessionId,
