@@ -17,10 +17,6 @@ app.use(
     credentials: true,
   })
 );
-app.use(userRoutes);
-
-const cookie = require("cookie");
-
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
@@ -29,6 +25,10 @@ const io = new Server(server, {
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   },
 });
+
+app.use(userRoutes);
+
+const cookie = require("cookie");
 
 export const getRecicipientSocketId = (receiverId: string) => {
   console.log(userSocketMap);
