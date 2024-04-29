@@ -18,6 +18,21 @@ const corsOptions = {
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 app.use(cors(corsOptions));
+
+app.options("*", (req, res) => {
+  res.setHeader(
+    "Access-Control-Allow-Origin",
+    "https://teetor-client.vercel.app"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+  );
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.status(200).end();
+});
+
 app.use(userRoutes);
 
 const server = http.createServer(app);
