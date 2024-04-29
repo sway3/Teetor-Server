@@ -1,10 +1,13 @@
 import mongoose from "mongoose";
 
 import config from "./config";
+import dotenv from "dotenv";
 
 import { server, app } from "../socket/socket";
 
-const PORT: number = 3001;
+dotenv.config();
+
+const PORT = process.env.PORT || 3001;
 
 const mongoURI: string = config.MONGO_URI;
 
