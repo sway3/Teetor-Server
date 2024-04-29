@@ -21,7 +21,7 @@ app.use(cors(corsOptions));
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["https://teetor-client.vercel.app"],
+    origin: "https://teetor-client.vercel.app",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   },
 });
