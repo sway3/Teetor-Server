@@ -11,6 +11,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
+app.options("*", cors());
 app.use(
   cors({
     origin: "https://teetor-client.vercel.app",
