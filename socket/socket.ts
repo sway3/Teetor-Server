@@ -1,5 +1,5 @@
 import { Server } from "socket.io";
-import { readFile } from "node:fs/promises";
+import { readFileSync } from "fs";
 import https from "https";
 import express from "express";
 import userRoutes from "../routes/userRoutes";
@@ -9,10 +9,10 @@ import cors from "cors";
 
 const app = express();
 
-const loadSSLFiles = async () => {
-  const key = await readFile("./key.pem");
-  const cert = await readFile("./cert.pem");
-  return { key, cert };
+const SSLFiles = () => {
+  const key = readFileSync("./key.pem");
+  const cert = readFileSync("./cert.pem");
+  return { key: key, cert: cert };
 };
 
 app.use(
@@ -25,7 +25,9 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(userRoutes);
 
-const server = https.createServer(app);
+const options = SSLFiles();
+
+const server = https.createServer(options, app);
 const io = new Server(server, {
   cors: {
     origin: "https://teetor-client.vercel.app",
