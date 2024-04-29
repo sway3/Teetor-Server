@@ -19,8 +19,11 @@ const io = new Server(server, {
 app.use(express.json());
 app.use(cookieParser());
 const corsOptions = {
-  origin: "https://teetor-client.vercel.app",
-  optionsSuccessStatus: 200,
+  origin: "*",
+  credentials: true,
+  methods: ["GET", "POST", "HEAD", "PUT", "PATCH", "DELETE"],
+  allowedHeaders: ["Content-Type"],
+  exposedHeaders: ["Content-Type"],
 };
 app.use(cors(corsOptions));
 app.options("*", cors());
