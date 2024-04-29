@@ -21,7 +21,7 @@ app.use(userRoutes);
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "https://teetor-client.vercel.app",
+    origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     credentials: true,
   },
